@@ -24,7 +24,7 @@ The included Latch API SDK is for API version 0.9.
 
 Clone the git repository:
 
-`$ git clone git@github.com:carlosms/opennebula-latch-addon`
+`$ git clone https://github.com/carlosms/opennebula-latch-addon.git`
 
 ### Run the install script
 
