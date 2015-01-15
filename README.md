@@ -160,7 +160,6 @@ enabled_tabs:
     oneflow-templates: true
     support-tab: false
     latch-tab: true
-    latch-tab: true
     doc-tab: false
     community-tab: false
     enterprise-tab: false
@@ -187,8 +186,8 @@ Head on to the Latch page for more information: https://latch.elevenpaths.com/ww
 Now you must restart the OpenNebula core and Sunstone services.
 
 ```
-# service opennebula start
-# service opennebula-sunstone start
+# service opennebula restart
+# service opennebula-sunstone restart
 ```
 
 ## Usage
