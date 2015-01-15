@@ -1,0 +1,85 @@
+#!/usr/bin/env ruby
+
+# OpenNebula Latch addon.
+# Copyright (C) 2015  Carlos Martin Sanchez
+# 
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+# 
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+# 
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+
+ONE_LOCATION = ENV["ONE_LOCATION"]
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION = "/usr/lib/one/ruby"
+    ETC_LOCATION      = "/etc/one/"
+else
+    RUBY_LIB_LOCATION = ONE_LOCATION+"/lib/ruby"
+    ETC_LOCATION      = ONE_LOCATION+"/etc/"
+end
+
+$: << RUBY_LIB_LOCATION
+
+require 'scripts_common'
+require 'nokogiri'
+require 'yaml'
+
+#############################
+# TODO
+require_relative '/home/cmartin/latch/latch-sdk-ruby/Latch'
+#############################
+
+user, pass, secret = ARGV
+
+conf = YAML.load(File.read(ETC_LOCATION+'/auth/latch_auth.conf'))
+
+#OpenNebula.log_debug("Authenticating #{user}, with password #{pass} (#{secret})")
+
+# Check if password matches
+
+match = false
+
+if (conf[:auth] == "plain")
+    match = (pass == secret)
+elsif (conf[:auth] == "sha1")
+    match = (pass == Digest::SHA1.hexdigest(secret))
+end
+
+if match
+
+    doc = Nokogiri::XML(`oneuser show #{user} -x`)
+
+    latch_id_elem = doc.at_xpath("USER/TEMPLATE/LATCH_ID")
+
+    # User is paired with latch if element exists
+    if (!latch_id_elem.nil?)
+        begin
+            latch_api = Latch.new(conf[:app_id], conf[:app_secret])
+            statusResponse = latch_api.status(latch_id_elem.text)
+
+            if (statusResponse.data["operations"][conf[:app_id]]["status"] == "on")
+                exit 0
+            else
+                OpenNebula.error_message "Latch is off"
+                exit -1
+            end
+        rescue
+            OpenNebula.error_message "Error connecting to Latch servers"
+            exit -1
+        end
+    end
+
+    exit 0
+else
+    OpenNebula.error_message "Invalid credentials"
+    exit -1
+end

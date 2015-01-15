@@ -1,0 +1,87 @@
+#!/usr/bin/env ruby
+
+# OpenNebula Latch addon.
+# Copyright (C) 2015  Carlos Martin Sanchez
+# 
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+# 
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+# 
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+
+ONE_LOCATION = ENV["ONE_LOCATION"]
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION = "/usr/lib/one/ruby"
+    ETC_LOCATION      = "/etc/one/"
+else
+    RUBY_LIB_LOCATION = ONE_LOCATION+"/lib/ruby"
+    ETC_LOCATION      = ONE_LOCATION+"/etc/"
+end
+
+$: << RUBY_LIB_LOCATION
+$: << RUBY_LIB_LOCATION+"/cli"
+
+require 'command_parser'
+require 'one_helper/oneuser_helper'
+require 'one_latch'
+
+require 'yaml'
+
+cmd=CommandParser::CmdParser.new(ARGV) do
+    usage "`onelatch` <command> [<args>] [<options>]"
+    version OpenNebulaHelper::ONE_VERSION
+
+    helper = OneUserHelper.new
+
+    before_proc do
+        helper.set_client(options) if @comm_name != :login
+    end
+
+    ########################################################################
+    # Global Options
+    ########################################################################
+    set :option, CommandParser::OPTIONS+OpenNebulaHelper::CLIENT_OPTIONS
+
+    ########################################################################
+    # Formatters for arguments
+    ########################################################################
+
+    set :format, :userid, OneUserHelper.to_id_desc do |arg|
+        helper.to_id(arg)
+    end
+
+    ########################################################################
+    # Commands
+    ########################################################################
+
+    pair_desc = <<-EOT.unindent
+        Pairs a user with a Latch account, associated to the given token
+    EOT
+
+    command :pair, pair_desc, :userid, :token do
+        helper.perform_action(args[0],options,"successfully paired") do |user|
+            OneLatch::pair(user, args[1])
+        end
+    end
+
+
+    unpair_desc = <<-EOT.unindent
+        Pairs a user with a Latch account, associated to the given token
+    EOT
+
+    command :unpair, unpair_desc, :userid do
+        helper.perform_action(args[0],options,"successfully unpaired") do |user|
+            OneLatch::unpair(user)
+        end
+    end
+
+end
