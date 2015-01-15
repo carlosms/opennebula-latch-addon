@@ -15,15 +15,10 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-require 'yaml'
+$: << RUBY_LIB_LOCATION+'/vendors/latch-sdk-ruby'
 
-#############################
-# TODO
-require_relative '/home/cmartin/latch/latch-sdk-ruby/Latch'
-#module Latch
-#    module_eval File.read('/home/cmartin/latch/latch-sdk-ruby/Latch.rb')
-#end
-#############################
+require 'yaml'
+require 'Latch'
 
 module OneLatch
 

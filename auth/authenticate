@@ -28,15 +28,13 @@ else
 end
 
 $: << RUBY_LIB_LOCATION
+$: << RUBY_LIB_LOCATION+'/vendors/latch-sdk-ruby'
 
 require 'scripts_common'
 require 'nokogiri'
 require 'yaml'
 
-#############################
-# TODO
-require_relative '/home/cmartin/latch/latch-sdk-ruby/Latch'
-#############################
+require 'Latch'
 
 user, pass, secret = ARGV
 
