@@ -6,7 +6,9 @@ This add-on provides OpenNebula users with the possibility of using [Latch](http
 
 Latch provides a mobile application to disable the OpenNebula account, adding protection in the event of credential theft. It also provides alert in case of unauthorized access attempt.
 
-You can also see a video demo of this add-on here: http://youtu.be/ZiNVNfSJJoE
+You can also see a video demo of this add-on here:
+
+[ ![YouTube](https://github.com/carlosms/opennebula-latch-addon/blob/master/doc/youtube.png "YouTube video") ](http://youtu.be/ZiNVNfSJJoE "YouTube")
 
 ## Authors
 
